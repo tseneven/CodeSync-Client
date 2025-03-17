@@ -1,4 +1,4 @@
-СРП - система распознования персонала. Дипломная работа студента группы .... Колледжа ....
+-СРП - система распознования персонала. Дипломная работа студента группы .... Колледжа ....-
 Используемые стеки: 
 -Git
 -Flutter
@@ -11,7 +11,7 @@
 
 Запуск приложения:
 -----------------------
-SRP - Personnel Recognition System. Thesis of a student of the group .... College ....
+-PRS - Personnel Recognition System. Thesis of a student of the group .... College ....-
 Used stacks:
 -Git
 -Flutter
@@ -22,4 +22,4 @@ Used stacks:
 
 The essence of the thesis: To create an automated system for recognizing employees' faces, QR codes and barcodes on personnel badges to obtain information about them.
 
-Launching the application:
+-Launching the application:-
