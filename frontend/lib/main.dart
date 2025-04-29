@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
-//import 'registration/registration.dart'; // Импортируем экран входа
+import 'src/registration/login.dart'; // Импортируем экран входа
 
 void main() {
-  runApp(const MyApp());
+  runApp(const LoginApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class LoginApp extends StatelessWidget {
+  const LoginApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      title: "RPS",
       debugShowCheckedModeBanner: false,
-      //home: LoginPage(),
+      theme: ThemeData.light(),
+      home: const LoginPage(),
     );
   }
 }
