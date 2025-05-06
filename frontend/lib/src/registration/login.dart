@@ -10,58 +10,61 @@ class LoginPage extends StatefulWidget{
   _LoginPageState createState() => _LoginPageState();
 }
 
+
 class _LoginPageState extends State<LoginPage> {
 
   var logger = Logger();
 
   @override
   Widget build(BuildContext context){
-    return  Scaffold(
-      backgroundColor: Colors.black,
-        body: Container(
-          width: double.infinity,
-          child: const Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(height: 20),
-              _LoginNameWidget(),     
-            ],
-          ),
-        )
+    return  const Scaffold(
+      body: Stack (
+        children: [
+          BottomSheetWidget()
+        ]
+      )
     );
   }
 }
 
-class _LoginNameWidget extends StatelessWidget {
-  const _LoginNameWidget();
+class BottomSheetWidget extends StatefulWidget {
+  const BottomSheetWidget({super.key});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _BottomSheetWidgetState createState() => _BottomSheetWidgetState();
+}
+
+class _BottomSheetWidgetState extends State<BottomSheetWidget> {
+  double _bottomPosition = -200; 
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 300), () {
+      setState(() {
+        _bottomPosition = 0; 
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return  Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors:[
-            Colors.purple,
-            Colors.deepPurple,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.all(
-          Radius.circular(30),          
-        )
-      ),
-      height: 200,
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          Text(
-            "Добро пожаловать", 
-            style: GoogleFonts.ptSansCaption(color: Colors.white, fontSize: 24),
-            
+    return AnimatedPositioned(
+      bottom: _bottomPosition, 
+      right: 0,
+      duration: const Duration(milliseconds: 500), // Длительность анимации
+      curve: Curves.easeOut, // Тип анимации (плавный выход)
+      child: Container(
+        color: Colors.white,
+        height: 200,
+        child: const Center(
+          child: Column(
+            children: [
+
+            ],
           )
-        ],
+        ),
       ),
     );
   }

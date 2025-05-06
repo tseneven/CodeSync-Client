@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/registration/login.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
 
@@ -11,18 +12,25 @@ class WelcomePage extends StatefulWidget{
 }
 // Основной виджет
 class _WelcomePageState extends State<WelcomePage> {
-
+  bool _isVisible = false;
   var logger = Logger();
+
+  void _toggleBottomSheet() {
+    setState(() {
+      _isVisible = !_isVisible; // Меняем состояние видимости
+    });
+  }
 
   @override
   Widget build(BuildContext context){
-    return  const Scaffold(
+    return  Scaffold(
       backgroundColor: Colors.black,
         body:  Stack(
           children:[
-            _BackgroundWidget(),
-            _CenterTextWidget(),
-            _ButtonsWidget() 
+            const _BackgroundWidget(),
+            const _CenterTextWidget(),
+            _ButtonsWidget(toggleBottomSheet: _toggleBottomSheet),
+            if (_isVisible) const BottomSheetWidget(),
         ]
       ) 
     );
@@ -31,7 +39,8 @@ class _WelcomePageState extends State<WelcomePage> {
 
 // Виджет с кнопками
 class _ButtonsWidget extends StatelessWidget {
-  const _ButtonsWidget();
+  final VoidCallback toggleBottomSheet;
+  const _ButtonsWidget({required this.toggleBottomSheet});
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +48,12 @@ class _ButtonsWidget extends StatelessWidget {
       alignment: Alignment.bottomCenter,
       child: Container(
         width: double.infinity,
-        child: const Row(    
+        child: Row(    
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _ButtonWidget('Sign up', Colors.black, Colors.transparent, Radius.circular(0) ),
-            _ButtonWidget('Sign in', Colors.blueAccent, Colors.white, Radius.circular(30)),      
+            _ButtonWidget('Sign up', Colors.black, Colors.transparent, const Radius.circular(0), toggleBottomSheet: toggleBottomSheet),
+            _ButtonWidget('Sign in', Colors.blueAccent, Colors.white, const Radius.circular(30), toggleBottomSheet: toggleBottomSheet),      
           ],
         ),
       ),
@@ -53,18 +62,22 @@ class _ButtonsWidget extends StatelessWidget {
 }
 
 // Виджет кнопки
+// ignore: must_be_immutable
 class _ButtonWidget extends StatelessWidget {
   final String textButton;
   final Color colorText;
   final Color colorBackground;
   final Radius radius;
-  const _ButtonWidget(this.textButton, this.colorText, this.colorBackground, this.radius);
+  final VoidCallback? toggleBottomSheet; // Коллбек для кнопки
+
+  const _ButtonWidget(this.textButton, this.colorText, this.colorBackground, this.radius, {this.toggleBottomSheet});
+
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: TextButton(
-        onPressed: (){}, 
+        onPressed: toggleBottomSheet, 
         style: TextButton.styleFrom(
           minimumSize: (const Size(150, 70)),
           backgroundColor: colorBackground,
@@ -120,3 +133,4 @@ class _CenterTextWidget extends StatelessWidget {
     );
   }
 }
+
