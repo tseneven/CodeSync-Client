@@ -3,8 +3,7 @@
 Используемые стеки: 
 -Git
 -Flutter
--Node.js
--TypeScript
+-ServerPod (Dart)
 -MySQL
 -Local Server (Radmin VPN)
 
@@ -16,8 +15,7 @@
 Used stacks:
 -Git
 -Flutter
--Node.js
--TypeScript
+-ServerPod (Dart)
 -MySQL
 -Local Server (Radmin VPN)
 
