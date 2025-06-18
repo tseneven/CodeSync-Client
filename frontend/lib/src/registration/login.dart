@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
@@ -26,14 +27,23 @@ Color hexToColor(String hexString) {
       backgroundColor: hexToColor("#f2f2eb"),
         body: Column(
           children:[
-          const Image(image: AssetImage('assets/bg_gif.gif')),
-          Text(
-            'Welcome',
-            style: GoogleFonts.adventPro(
-              fontSize: 24,
-              color: Colors.black
+          ClipRRect(
+            borderRadius: BorderRadiusGeometry.circular(20),
+            child: 
+            ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+              child: const Image(image: AssetImage('assets/bg_fon.jpg')
+              )
             ),
-          )
+          ),
+          const Text(
+            'Welcome to a new era of \n production applications',
+            style: TextStyle(
+              fontFamily: 'SFPro',
+              fontWeight: FontWeight.normal,
+              fontSize: 24
+              )
+            ),
         ]
       ) 
     );

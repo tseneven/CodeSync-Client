@@ -26,7 +26,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/bg_gif.gif
+    - assets/bg_fon.jpg
+  fonts:
+    - family: SFPro
+      fonts:
+        - asset: assets/fonts/sanFran/SF-Pro-Display-Regular.otf
+        - asset: assets/fonts/sanFran/SF-Pro-Display-Bold.otf
+          weight: 700
 
 flutter_icons:
   android: true
