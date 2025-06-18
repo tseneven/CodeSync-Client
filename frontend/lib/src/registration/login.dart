@@ -1,71 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logger/logger.dart';
 
-class LoginPage extends StatefulWidget{
-  const LoginPage({super.key});
+class WelcomePage extends StatefulWidget{
+  const WelcomePage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
-  _LoginPageState createState() => _LoginPageState();
+  _WelcomePageState createState() => _WelcomePageState();
 }
-
-
-class _LoginPageState extends State<LoginPage> {
-
+// Основной виджет
+class _WelcomePageState extends State<WelcomePage> {
   var logger = Logger();
+
+Color hexToColor(String hexString) {
+  final buffer = StringBuffer();
+  if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+  buffer.write(hexString.replaceFirst('#', ''));
+  return Color(int.parse(buffer.toString(), radix: 16));
+}
 
   @override
   Widget build(BuildContext context){
-    return  const Scaffold(
-      body: Stack (
-        children: [
-          BottomSheetWidget()
-        ]
-      )
-    );
-  }
-}
-
-class BottomSheetWidget extends StatefulWidget {
-  const BottomSheetWidget({super.key});
-
-  @override
-  // ignore: library_private_types_in_public_api
-  _BottomSheetWidgetState createState() => _BottomSheetWidgetState();
-}
-
-class _BottomSheetWidgetState extends State<BottomSheetWidget> {
-  double _bottomPosition = -200; 
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(milliseconds: 300), () {
-      setState(() {
-        _bottomPosition = 0; 
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedPositioned(
-      bottom: _bottomPosition, 
-      right: 0,
-      duration: const Duration(milliseconds: 500), // Длительность анимации
-      curve: Curves.easeOut, // Тип анимации (плавный выход)
-      child: Container(
-        color: Colors.white,
-        height: 200,
-        child: const Center(
-          child: Column(
-            children: [
-
-            ],
+    return Scaffold(
+      backgroundColor: hexToColor("#f2f2eb"),
+        body: Column(
+          children:[
+          const Image(image: AssetImage('assets/bg_gif.gif')),
+          Text(
+            'Welcome',
+            style: GoogleFonts.adventPro(
+              fontSize: 24,
+              color: Colors.black
+            ),
           )
-        ),
-      ),
+        ]
+      ) 
     );
   }
 }
+
+
+

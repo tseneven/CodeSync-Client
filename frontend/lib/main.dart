@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/src/registration/welcome_screen.dart';// Импортируем начальный экран
+import 'package:frontend/src/registration/login.dart';// Импортируем начальный экран
 
 void main() {
   runApp(const MyApp());
