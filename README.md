@@ -37,6 +37,8 @@ lib/
 └── app.dart                # Обёртка MaterialApp, маршруты
 ```
 
+# Документация
+[Тык](https://drive.google.com/drive/folders/1XD7Qr-lko32kdyc2H8am07eKxcx4DfWZ?usp=sharing)
 # Запуск 
 Через точку входа main или 
 ```Dart
