@@ -1,4 +1,3 @@
-import 'package:logger/logger.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 
 class WelcomePage extends StatefulWidget {
@@ -9,16 +8,31 @@ class WelcomePage extends StatefulWidget {
   _WelcomePageState createState() => _WelcomePageState();
 }
 
-// Основной виджет
-class _WelcomePageState extends State<WelcomePage> {
-  var logger = Logger();
+class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin {
+  bool _showWidget = false;
+
   final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   Color hexToColor(String hexString) {
     final buffer = StringBuffer();
     if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
     buffer.write(hexString.replaceFirst('#', ''));
     return Color(int.parse(buffer.toString(), radix: 16));
   }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _usernameController.addListener(() {
+      setState(() {
+        _showWidget = _usernameController.text.isNotEmpty;
+      });
+    });
+  }
+
 
   @override
   void dispose() {
@@ -32,33 +46,95 @@ class _WelcomePageState extends State<WelcomePage> {
     return Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: hexToColor("#ebebe8"),
-        body: SingleChildScrollView(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Column(children: [
-            const Image(image: AssetImage('assets/bg_fon.png')),
-            const SizedBox(height: 30),
-            const Text('Welcome, youre starting\n  your first journey here!',
-                style: TextStyle(
-                    fontFamily: 'SFPro',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24)),
-            const Text(
-              'Add your avatar and pick a username for quick start',
-              style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey,
-                  fontFamily: 'SFPro',
-                  fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 30),
-            _AddAvatarWidget(),
-            _UnderAvatarWidget(),
-            _TextfildWidget(controller: _usernameController),
-            _ButtonWidget(),
-            _LoginWidget(),
-          ]),
+        body: AnimatedSize(
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.fastOutSlowIn,
+          alignment: Alignment.topCenter,
+          child: SingleChildScrollView(
+            padding:
+                EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Column(children: [
+              const Image(image: AssetImage('assets/bg_fon.png')),
+              _SwitchUpWidget(showWidget: _showWidget),              const SizedBox(height: 30),
+              _AddAvatarWidget(),
+              _UnderAvatarWidget(),
+              _TextfildWidget(controller: _usernameController, hintText: 'username', icon: Icons.alternate_email),
+              if (_showWidget)_TextfildWidget(controller: _emailController, hintText: 'email', icon: Icons.email),
+              if (_showWidget)_TextfildWidget(controller: _passwordController, hintText: 'password', icon: Icons.lock),
+              _ButtonWidget(),
+              _LoginWidget(),
+            ]),
+          ),
         ));
+  }
+}
+
+class _SwitchUpWidget extends StatelessWidget {
+  const _SwitchUpWidget({
+    super.key,
+    required bool showWidget,
+  }) : _showWidget = showWidget;
+
+  final bool _showWidget;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 600),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return SizeTransition(
+          sizeFactor: animation,
+          axis: Axis.vertical,
+          child: child,
+        );
+      },
+      child: _showWidget
+          ? const SizedBox.shrink()
+          : const Column(
+              key: ValueKey('welcome_text'),
+              children: [
+                SizedBox(height: 30),
+                Padding(
+                  padding: EdgeInsets.only(left: 22),
+                  child: _TextWidget(),
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+
+class _TextWidget extends StatelessWidget {
+
+  const _TextWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      children: [
+        Text(
+          'Welcome, you’re starting\nyour first journey here!',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'SFPro',
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+        ),
+        SizedBox(height: 10),
+        Text(
+          'Add your avatar and pick a username for quick start',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.grey,
+            fontFamily: 'SFPro',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -71,8 +147,7 @@ class _LoginWidget extends StatelessWidget {
       child: const Text(
         'Got an account? Sign in!',
         style: TextStyle(
-          color: Colors.blue,
-          decoration: TextDecoration.underline,
+          color: Colors.black,
           fontWeight: FontWeight.bold,
           fontFamily: 'SFPro'
         ),
@@ -104,7 +179,7 @@ class _ButtonWidget extends StatelessWidget {
                 child: Text('Create an account',
                   style: TextStyle(
                     fontFamily: 'SFPro',
-                    fontWeight: FontWeight.normal,
+                    fontWeight: FontWeight.bold,
                     fontSize: 12,
                     color: Colors.grey
                   )
@@ -118,11 +193,14 @@ class _ButtonWidget extends StatelessWidget {
   }
 }
 
-// Виджет с полей username
+// Виджет с полем username
 class _TextfildWidget extends StatelessWidget {
   final TextEditingController controller;
+  final IconData icon;
+  final String hintText;
 
-  const _TextfildWidget({required this.controller});
+  const _TextfildWidget({required this.controller, required this.hintText, required this.icon});
+
 
   @override
   Widget build(BuildContext context) {
@@ -142,23 +220,23 @@ class _TextfildWidget extends StatelessWidget {
               padding: const EdgeInsets.only(left: 12, right: 8),
               child: TextField(
                 controller: controller,
-                decoration: const InputDecoration(
+                decoration:  InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'username',
-                    contentPadding: EdgeInsets.only(bottom: 4),
+                    hintText: hintText,
+                    contentPadding: const EdgeInsets.only(bottom: 0),
                     prefixIcon: Icon(
-                      Icons.alternate_email,
+                      icon,
                       size: 15,
                       color: Colors.black87,
                     ),
-                    prefixIconConstraints: BoxConstraints(
+                    prefixIconConstraints: const BoxConstraints(
                       minWidth: 30,
                       minHeight: 20,
                     ),
-                    hintStyle: TextStyle(
+                    hintStyle: const TextStyle(
                         fontFamily: 'SFPro',
                         fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        fontSize: 14,
                         color: Colors.grey)),
               ),
             ),
