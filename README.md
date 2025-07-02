@@ -1,24 +1,45 @@
-СРП - система распознования персонала. Дипломная работа студента группы .... Колледжа ....
------------------------
-Используемые стеки: 
--Git
--Flutter
--ServerPod (Dart)
--MySQL
--Local Server (Radmin VPN)
+# Основная информация
+CodeSync Client - CRM-система для программистов с большим функционалом с формате мобильного приложения. 
+Данный репозиторий содержит клиентскую часть приложения.
+[Серверная часть](https://github.com/tseneven/CodeSync-Server)
 
-Суть дипломной работы: Создать автоматизированую систему распознавания лиц сотрудников, QR-кодов и штрихкодов на бейджах персонала для получения информации о нем.
+# Стек технологий
+Клиент написанный на Flutter/Dart с использованием Shared Preferences, RestAPI, WebSockets
 
-Запуск приложения:
--RS - Personnel Recognition System. Thesis of a student of the group .... College ....
------------------------
-Used stacks:
--Git
--Flutter
--ServerPod (Dart)
--MySQL
--Local Server (Radmin VPN)
+# Архитектура
 
-The essence of the thesis: To create an automated system for recognizing employees' faces, QR codes and barcodes on personnel badges to obtain information about them.
+'''
+lib/
+│
+├── core/                   # Общие абстракции, интерфейсы, утилиты
+│   ├── services/           # Абстракции (AuthService, ChatService)
+│   ├── usecases/           # Логика приложения (чистая бизнес-логика)
+│   └── utils/              # Хелперы, расширения
+│
+├── data/                   # Реализации абстракций (инфраструктура)
+│   ├── datasources/        # Источники данных (SQLite, Web, IndexedDB и т.п.)
+│   ├── repositories/       # Реализации интерфейсов, работающие с источниками
+│   └── adapters/           # Платформенные адаптеры (веб, мобилки)
+│
+├── di/                     # Dependency Injection (локаторы, фабрики)
+│   └── locator.dart        # Настройка get_it или другого DI
+│
+├── features/               # Фичи — изолированные модули (по функциональности)
+│   ├── auth/
+│   │   ├── presentation/   # UI и стейт
+│   │   ├── domain/         # Интерфейсы и usecase
+│   │   └── data/           # Реализации
+│   ├── chat/
+│   └── profile/
+│
+├── l10n/                   # Локализация
+├── main.dart               # Точка входа
+└── app.dart                # Обёртка MaterialApp, маршруты
+'''
 
--Launching the application:-
+# Запуск 
+Через точку входа main или 
+'''Dart
+flutter run apk
+'''
+
