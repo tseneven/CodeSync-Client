@@ -21,7 +21,8 @@ class RegistrationData extends Registration_Interface {
       if (response.statusCode == 404) return "Такого пользователя нет";
       if (response.statusCode == 500) return "Ошибка на сервере";
 
-      sp.saveToken(response.body);
+      final data = jsonDecode(response.body);
+      sp.saveToken(data['userID'], data['token'], data['username']);
       return "Ок";
     } catch (e) {
       return e.toString();

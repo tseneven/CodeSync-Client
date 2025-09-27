@@ -1,5 +1,4 @@
 import 'package:code_sync/fearures/auth/data/registration_data.dart';
-import 'package:code_sync/fearures/auth/domain/registration_Interface.dart';
 import 'package:code_sync/fearures/auth/presentation/register/register_ui.dart';
 import 'package:code_sync/fearures/main_screen/main_screen_ui.dart';
 import 'package:code_sync/utils/hex_to_Color.dart';
@@ -205,7 +204,7 @@ class _RegisterWidget extends StatelessWidget {
 // Виджет с кнопкой
 class _ButtonWidget extends StatelessWidget {
 
-  VoidCallback login;
+  final VoidCallback login;
 
   _ButtonWidget ({required this.login});
 

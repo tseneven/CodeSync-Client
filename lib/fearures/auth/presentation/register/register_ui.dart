@@ -1,5 +1,4 @@
 import 'package:code_sync/fearures/auth/data/Registration_Data.dart';
-import 'package:code_sync/fearures/auth/domain/registration_Interface.dart';
 import 'package:code_sync/fearures/main_screen/main_screen_ui.dart';
 import 'package:code_sync/utils/hex_to_Color.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
