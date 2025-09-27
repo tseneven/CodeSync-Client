@@ -1,4 +1,5 @@
 abstract class Registration_Interface{
-  Future<String> Registr(String username, String email, String password);
+  Future<String> register(String username, String email, String password);
+  Future<String> login(String username, String email, String password);
 }
 

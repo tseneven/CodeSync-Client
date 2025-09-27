@@ -16,6 +16,9 @@ dependencies:
   flutter_svg: ^2.1.0
   logger: ^2.5.0
   flutter_neumorphic_plus: ^3.4.0
+  http: ^1.5.0
+  shared_preferences: ^2.5.3
+  build_runner: ^2.6.1
   
 
 dev_dependencies:

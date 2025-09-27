@@ -1,25 +1,29 @@
+import 'package:code_sync/fearures/auth/data/registration_data.dart';
+import 'package:code_sync/fearures/auth/domain/registration_Interface.dart';
+import 'package:code_sync/fearures/auth/presentation/register/register_ui.dart';
+import 'package:code_sync/fearures/main_screen/main_screen_ui.dart';
 import 'package:code_sync/utils/hex_to_Color.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
-import 'package:code_sync/fearures/auth/presentation/auth_ui.dart';
+import 'package:logger/logger.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
-
-  // Боже обереги тех, кто лезет в свой код спустя несколько месяцев
+class AuthPage extends StatefulWidget {
+  const AuthPage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
-  _RegisterPageState createState() => _RegisterPageState();
+  _AuthPageState createState() => _AuthPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage>
-    with TickerProviderStateMixin {
+class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
   bool _showWidget = false;
+
+  final Logger logger = Logger();
+
+  final RegistrationData login = RegistrationData();
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
 
   @override
   void initState() {
@@ -36,6 +40,31 @@ class _RegisterPageState extends State<RegisterPage>
   void dispose() {
     _usernameController.dispose();
     super.dispose();
+  }
+
+  void logined() async {
+    String result = await login.login(_usernameController.text,
+        _emailController.text, _passwordController.text);
+
+    if (result != "Ок") {
+      logger.e(result);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result)));
+    } else {
+      logger.e(result);
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const MainPage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            var opacityAnimation =
+                Tween(begin: 0.0, end: 1.0).animate(animation);
+            return FadeTransition(opacity: opacityAnimation, child: child);
+          },
+        ),
+      );
+    }
   }
 
   // Основной виджет
@@ -57,30 +86,20 @@ class _RegisterPageState extends State<RegisterPage>
               const ImageWidget(),
               _SwitchUpWidget(showWidget: _showWidget),
               const SizedBox(height: 30),
-              _AddAvatarWidget(),
-              _UnderAvatarWidget(),
               _TextfildWidget(
-                controller: _usernameController,
-                hintText: 'username',
-                icon: Icons.alternate_email,
+                controller: _emailController,
+                hintText: 'email',
+                icon: Icons.email,
                 isPassword: false,
               ),
-              if (_showWidget)
-                _TextfildWidget(
-                  controller: _emailController,
-                  hintText: 'email',
-                  icon: Icons.email,
-                  isPassword: false,
-                ),
-              if (_showWidget)
-                _TextfildWidget(
-                  controller: _passwordController,
-                  hintText: 'password',
-                  icon: Icons.lock,
-                  isPassword: true,
-                ),
-              _ButtonWidget(),
-              _LoginWidget(),
+              _TextfildWidget(
+                controller: _passwordController,
+                hintText: 'password',
+                icon: Icons.lock,
+                isPassword: true,
+              ),
+              _ButtonWidget(login: logined),
+              _RegisterWidget(),
             ],
           ),
         ),
@@ -147,7 +166,7 @@ class _TextWidget extends StatelessWidget {
           ),
           SizedBox(height: 10),
           Text(
-            'Add your avatar and pick a username for quick start',
+            'Log in to get more features!',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
@@ -162,17 +181,17 @@ class _TextWidget extends StatelessWidget {
   }
 }
 
-// Виджет для перехода на страницу логина
-class _LoginWidget extends StatelessWidget {
+// Виджет для перехода на страницу регистрации
+class _RegisterWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const AuthPage()),
+        MaterialPageRoute(builder: (context) => const RegisterPage()),
       ),
       child: const Text(
-        'Got an account? Sign in!',
+        'Dont have an account? Register!',
         style: TextStyle(
           color: Colors.black,
           fontWeight: FontWeight.bold,
@@ -185,10 +204,15 @@ class _LoginWidget extends StatelessWidget {
 
 // Виджет с кнопкой
 class _ButtonWidget extends StatelessWidget {
+
+  VoidCallback login;
+
+  _ButtonWidget ({required this.login});
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: login,
       child: Padding(
         padding: const EdgeInsets.all(13.0),
         child: Container(
@@ -203,7 +227,7 @@ class _ButtonWidget extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(left: 5),
                 child: Text(
-                  'Create an account',
+                  'Login',
                   style: TextStyle(
                     fontFamily: 'SFPro',
                     fontWeight: FontWeight.bold,
@@ -269,139 +293,6 @@ class _TextfildWidget extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Виджет с текстом над филдом
-class _UnderAvatarWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: const Padding(
-        padding: EdgeInsets.only(right: 245, top: 7),
-        child: Text(
-          'Display name',
-          style: TextStyle(
-            fontFamily: 'SFPro',
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// виджет с плашкой аватарки
-class _AddAvatarWidget extends StatelessWidget {
-  Color hexToColor(String hexString) {
-    final buffer = StringBuffer();
-    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
-    buffer.write(hexString.replaceFirst('#', ''));
-    return Color(int.parse(buffer.toString(), radix: 16));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(13.0),
-      child: Container(
-        padding: const EdgeInsets.all(1), // толщина рамки
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [hexToColor('#f5e2f8'), hexToColor('#edeffe')],
-          ),
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Container(
-          height: 80,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            gradient: LinearGradient(
-              colors: [hexToColor('#f5e2f8'), hexToColor('#edeffe')],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(18.0),
-            border: Border.all(color: Colors.white, width: 1.0),
-          ),
-          child: Row(
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(left: 10),
-                child: CircleAvatar(
-                  radius: 28,
-                  backgroundImage: AssetImage('assets/memoji.webp'),
-                  backgroundColor: Colors.white,
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Your avatar',
-                      style: TextStyle(
-                        fontFamily: 'SFPro',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                    Text(
-                      'PNG or JPG up to 10MB\n(200x200px max)',
-                      style: TextStyle(
-                        fontFamily: 'SFPro',
-                        fontWeight: FontWeight.normal,
-                        fontSize: 10,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    width: 90,
-                    height: 35,
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(9.0),
-                    ),
-                    child: const Row(
-                      children: [
-                        SizedBox(width: 13),
-                        Icon(
-                          Icons.camera_enhance_rounded,
-                          color: Colors.white,
-                          size: 14,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 5),
-                          child: Text(
-                            'Upload',
-                            style: TextStyle(
-                              fontFamily: 'SFPro',
-                              fontWeight: FontWeight.normal,
-                              fontSize: 12,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
       ),
