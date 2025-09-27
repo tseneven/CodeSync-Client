@@ -1,4 +1,5 @@
 import 'package:code_sync/fearures/register/register_ui.dart';
+import 'package:code_sync/utils/hex_to_Color.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 
 class AuthPage extends StatefulWidget {
@@ -15,13 +16,6 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
-  Color hexToColor(String hexString) {
-    final buffer = StringBuffer();
-    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
-    buffer.write(hexString.replaceFirst('#', ''));
-    return Color(int.parse(buffer.toString(), radix: 16));
-  }
 
   @override
   void initState() {
@@ -45,7 +39,7 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: hexToColor("#ebebe8"),
+      backgroundColor: HexToColor.hexToColor("#ebebe8"),
       body: AnimatedSize(
         duration: const Duration(milliseconds: 500),
         curve: Curves.fastOutSlowIn,
@@ -86,7 +80,7 @@ class ImageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Image(image: AssetImage('assets/bg_fon.jpg'));
+    return const Image(image: AssetImage('assets/bg_fon.png'));
   }
 }
 
