@@ -1,3 +1,4 @@
+import 'package:code_sync/data/repositories/shared_preferences.dart';
 import 'package:code_sync/fearures/auth/data/board.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/web.dart';
@@ -15,23 +16,35 @@ class NewsWidget extends StatefulWidget {
 class NewsWidgetState extends State<NewsWidget> {
   final board = Board();
   final logger = Logger();
+  String? userID;
+  String? username;
   List<Map<String, dynamic>> news = [];
 
   @override
   void initState() {
     super.initState();
     loadBoard();
+    loadUser();
+  }
+
+  void loadUser() async {
+    final sh = ShServise();
+    userID = await sh.getUserID();
+    username = await sh.getUsername();
+    setState(() {});
   }
 
   void loadBoard() async {
     final loadedNews = await board.getAllBoards();
     logger.d(loadedNews);
 
+    if (loadedNews.isEmpty) return;
     if (loadedNews[0]['ex'] != null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(loadedNews[0]['ex'])));
     } else {
       setState(() {
+        news = [];
         news = loadedNews;
       });
     }
@@ -50,6 +63,17 @@ class NewsWidgetState extends State<NewsWidget> {
             ? ListView.builder(
                 itemCount: news.length,
                 itemBuilder: (context, index) {
+                  List<dynamic> likes = news[index]['likes'];
+                  bool isLiked =
+                      likes.any((like) => like['userId'].toString() == userID);
+
+                  for (int i = 0; i < likes.length; i++) {
+                    // ignore: unrelated_type_equality_checks, collection_methods_unrelated_type
+                    if (userID == likes[i]['userId'].toString()) {
+                      isLiked = true;
+                    }
+                  }
+
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ClipRRect(
@@ -128,10 +152,40 @@ class NewsWidgetState extends State<NewsWidget> {
                                               children: [
                                                 Row(
                                                   children: [
-                                                    const Icon(
-                                                      Icons.favorite,
-                                                      color: Colors.white,
-                                                      size: 20,
+                                                    GestureDetector(
+                                                      onTap: () async {
+                                                        if (!isLiked) {
+                                                          setState(() {
+                                                            news[index]['likes']
+                                                                .add({
+                                                              'id': null,
+                                                              'username':
+                                                                  username,
+                                                              'userId': userID,
+                                                              'boardId':
+                                                                  news[index]
+                                                                      ['id'],
+                                                            });
+                                                            news[index][
+                                                                    'countLikes'] =
+                                                                news[index][
+                                                                        'likes']
+                                                                    .length;
+                                                          });
+                                                          // Обновляем сервер
+                                                          await board
+                                                              .likedBoard(
+                                                                  news[index]
+                                                                      ['id']);
+                                                        }
+                                                      },
+                                                      child: Icon(
+                                                        Icons.favorite,
+                                                        color: isLiked
+                                                            ? Colors.red
+                                                            : Colors.white,
+                                                        size: 20,
+                                                      ),
                                                     ),
                                                     const SizedBox(width: 5),
                                                     Text(
@@ -243,10 +297,40 @@ class NewsWidgetState extends State<NewsWidget> {
                                               children: [
                                                 Row(
                                                   children: [
-                                                    const Icon(
-                                                      Icons.favorite,
-                                                      color: Colors.white,
-                                                      size: 20,
+                                                    GestureDetector(
+                                                      onTap: () async {
+                                                        if (!isLiked) {
+                                                          setState(() {
+                                                            news[index]['likes']
+                                                                .add({
+                                                              'id':
+                                                                  null, 
+                                                              'username':
+                                                                  userID,
+                                                              'userId': username,
+                                                              'boardId':
+                                                                  news[index]
+                                                                      ['id'],
+                                                            });
+                                                            news[index][
+                                                                    'countLikes'] =
+                                                                news[index][
+                                                                        'likes']
+                                                                    .length;
+                                                          });
+                                                          await board
+                                                              .likedBoard(
+                                                                  news[index]
+                                                                      ['id']);
+                                                        }
+                                                      },
+                                                      child: Icon(
+                                                        Icons.favorite,
+                                                        color: isLiked
+                                                            ? Colors.red
+                                                            : Colors.white,
+                                                        size: 20,
+                                                      ),
                                                     ),
                                                     const SizedBox(width: 5),
                                                     Text(

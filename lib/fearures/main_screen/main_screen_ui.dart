@@ -18,11 +18,12 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Column(
         children: [
           Expanded(flex: 21, child: NewsWidget(key: newsKey)),
           LowerPanelWidget(onNewsUpdate: () {
-            newsKey.currentState?.loadBoard(); // 👈 обновление новостей
+            newsKey.currentState?.loadBoard();
           })
         ],
       ),

@@ -74,12 +74,39 @@ class Board extends BoardInterface {
           'text': text,
           'haveImage': haveImage,
           'repost': 0
-        })
-      );
+        }));
 
     if (response.statusCode == 200) {
       return "Ок";
     }
     return "Ошибка публикации: ${response.statusCode}";
+  }
+
+  @override
+  Future<String> likedBoard(int boardId) async {
+    try {
+      const endpoint = "http://10.0.2.2:5163/api/Borders/LikeBoard";
+
+      final uri = Uri.parse(endpoint);
+
+      final token = await sh.getToken();
+      final username = await sh.getUsername();
+      final userId = await sh.getUserID();
+
+      final response = await http.post(uri,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token'
+          },
+          body: jsonEncode(
+              {'username': username, 'userId': userId, 'boardId': boardId}));
+
+      if (response.statusCode == 200) {
+        return "Ок";
+      }
+      return "Ошибка оценки: ${response.statusCode}";
+    } catch (e) {
+      return e.toString();
+    }
   }
 }

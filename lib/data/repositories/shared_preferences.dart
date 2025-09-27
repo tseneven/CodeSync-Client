@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:code_sync/data/datasourse/shared_preferences_interface.dart';
 import 'package:logger/logger.dart';
