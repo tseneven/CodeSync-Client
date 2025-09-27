@@ -1,7 +1,6 @@
 enum StatesEum {
-  news,
+  news ,
   tasks,
   profile,
   chats,
-  friends
 }

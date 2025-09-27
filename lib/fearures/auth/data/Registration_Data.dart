@@ -4,9 +4,11 @@ import 'package:code_sync/data/repositories/shared_preferences.dart';
 import 'package:code_sync/fearures/auth/domain/Registration_Interface.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 
 class RegistrationData extends Registration_Interface {
   final ShServiseInterface sp = ShServise();
+  final logger = Logger();
 
   @override
   Future<String> login(String username, String email, String password) async {
@@ -22,7 +24,10 @@ class RegistrationData extends Registration_Interface {
       if (response.statusCode == 500) return "Ошибка на сервере";
 
       final data = jsonDecode(response.body);
-      sp.saveToken(data['userID'], data['token'], data['username']);
+
+      logger.d(data);
+
+      sp.saveToken(data['token'], data['userID'], data['username']);
       return "Ок";
     } catch (e) {
       return e.toString();

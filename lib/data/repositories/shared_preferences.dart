@@ -9,11 +9,11 @@ class ShServise extends ShServiseInterface {
 
   // Сохранение токена с входными данными (Токен, юзернейма и юзерайди)
   @override
-  Future<void> saveToken(String token, int userID, String username) async {
+  Future<void> saveToken(String token,  String userID, String username) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('auth_token', token);
     prefs.setString('username', username);
-    prefs.setInt('user_id', userID);
+    prefs.setString('user_id', userID);
     logger.d(token);
   }
 
@@ -28,7 +28,7 @@ class ShServise extends ShServiseInterface {
   @override
   Future<String> getUserID() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('user_id').toString();
+    return prefs.getString('user_id').toString();
   }
 
   // Получение юзернейма

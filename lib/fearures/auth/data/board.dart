@@ -17,8 +17,6 @@ class Board extends BoardInterface {
     try {
       final token = await sh.getToken();
 
-      logger.d(token);
-
       final response = await http.get(uri, headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token'
@@ -59,20 +57,25 @@ class Board extends BoardInterface {
 
     final uri = Uri.parse(endpoint);
 
-    final token = sh.getToken();
-    final username = sh.getUsername();
-    final userId = sh.getUserID();
+    final token = await sh.getToken();
+    final username = await sh.getUsername();
+    final userId = await sh.getUserID();
 
-    final response = await http.post(uri, headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token'
-    }, body: {
-      'UserID': userId,
-      'Username': username,
-      'text': text,
-      'haveImage': haveImage,
-      'repost': 0
-    });
+    logger.d(token);
+
+    final response = await http.post(uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
+        body: jsonEncode({
+          'UserID': userId,
+          'Username': username,
+          'text': text,
+          'haveImage': haveImage,
+          'repost': 0
+        })
+      );
 
     if (response.statusCode == 200) {
       return "Ок";
