@@ -1,5 +1,5 @@
 
-import 'package:code_sync/data/datasourse/shared_preferences_interface.dart';
+import 'package:code_sync/domain/repositories/shared_preferences_interface.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

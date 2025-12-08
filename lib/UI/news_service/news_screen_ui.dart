@@ -1,5 +1,5 @@
-import 'package:code_sync/data/repositories/shared_preferences.dart';
-import 'package:code_sync/fearures/auth/data/board.dart';
+import 'package:code_sync/data/datasourse/board.dart';
+import 'package:code_sync/data/datasourse/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/web.dart';
 import 'package:intl/intl.dart';

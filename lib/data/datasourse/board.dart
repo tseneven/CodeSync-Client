@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:code_sync/data/repositories/shared_preferences.dart';
-import 'package:code_sync/fearures/auth/domain/board_interface.dart';
+import 'package:code_sync/data/datasourse/shared_preferences.dart';
+import 'package:code_sync/domain/repositories/board_interface.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 

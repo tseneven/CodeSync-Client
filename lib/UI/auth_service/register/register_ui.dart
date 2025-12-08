@@ -1,9 +1,23 @@
-import 'package:code_sync/fearures/auth/data/Registration_Data.dart';
-import 'package:code_sync/fearures/main_screen/main_screen_ui.dart';
+import 'package:code_sync/UI/auth_service/register/bloc/register_bloc.dart';
+import 'package:code_sync/UI/main_service/main_screen_ui.dart';
+import 'package:code_sync/data/dto/user.dto.dart';
 import 'package:code_sync/utils/hex_to_Color.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
-import 'package:code_sync/fearures/auth/presentation/auth/auth_ui.dart';
+import 'package:code_sync/UI/auth_service/auth/auth_ui.dart';
 import 'package:logger/logger.dart';
+
+class RegisterPageWraper extends StatelessWidget {
+  const RegisterPageWraper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => RegisterBloc(),
+      child: const RegisterPage(),
+    );
+  }
+}
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -21,36 +35,9 @@ class _RegisterPageState extends State<RegisterPage>
 
   final Logger logger = Logger();
 
-  final RegistrationData registration = RegistrationData();
-
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
-  void registr() async {
-    String result = await registration.register(_usernameController.text,
-        _emailController.text, _passwordController.text);
-
-    if (result != "Ок") {
-      logger.e(result);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result)));
-    } else {
-      logger.e(result);
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              const MainPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            var opacityAnimation =
-                Tween(begin: 0.0, end: 1.0).animate(animation);
-            return FadeTransition(opacity: opacityAnimation, child: child);
-          },
-        ),
-      );
-    }
-  }
 
   @override
   void initState() {
@@ -83,38 +70,76 @@ class _RegisterPageState extends State<RegisterPage>
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: Column(
-            children: [
-              const ImageWidget(),
-              _SwitchUpWidget(showWidget: _showWidget),
-              const SizedBox(height: 30),
-              _AddAvatarWidget(),
-              _UnderAvatarWidget(),
-              _TextfildWidget(
-                controller: _usernameController,
-                hintText: 'username',
-                icon: Icons.alternate_email,
-                isPassword: false,
-              ),
-              if (_showWidget)
+          child: BlocListener<RegisterBloc, RegisterState>(
+            listener: (context, state) {
+              if (state is RegisterError) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text(state.exception)));
+              } else if (state is RegisterSuccess) {
+                Navigator.pushReplacement(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        const MainPage(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      var opacityAnimation =
+                          Tween(begin: 0.0, end: 1.0).animate(animation);
+                      return FadeTransition(
+                          opacity: opacityAnimation, child: child);
+                    },
+                  ),
+                );
+              }
+            },
+            child: Column(
+              children: [
+                const ImageWidget(),
+                _SwitchUpWidget(showWidget: _showWidget),
+                const SizedBox(height: 30),
+                _AddAvatarWidget(),
+                _UnderAvatarWidget(),
                 _TextfildWidget(
-                  controller: _emailController,
-                  hintText: 'email',
-                  icon: Icons.email,
+                  controller: _usernameController,
+                  hintText: 'username',
+                  icon: Icons.alternate_email,
                   isPassword: false,
                 ),
-              if (_showWidget)
-                _TextfildWidget(
-                  controller: _passwordController,
-                  hintText: 'password',
-                  icon: Icons.lock,
-                  isPassword: true,
+                if (_showWidget)
+                  _TextfildWidget(
+                    controller: _emailController,
+                    hintText: 'email',
+                    icon: Icons.email,
+                    isPassword: false,
+                  ),
+                if (_showWidget)
+                  _TextfildWidget(
+                    controller: _passwordController,
+                    hintText: 'password',
+                    icon: Icons.lock,
+                    isPassword: true,
+                  ),
+                BlocBuilder<RegisterBloc, RegisterState>(
+                  builder: (context, state) {
+                    return _ButtonWidget(
+                      isLoading: state is RegisterLoading,
+                      register: state is RegisterLoading
+                          ? null
+                          : () {
+                              final bloc = context.read<RegisterBloc>();
+                              User user = User(
+                                _usernameController.text,
+                                _emailController.text,
+                                _passwordController.text,
+                              );
+                              bloc.add(EmitRegister(user));
+                            },
+                    );
+                  },
                 ),
-              _ButtonWidget(
-                register: registr,
-              ),
-              _LoginWidget(),
-            ],
+                _LoginWidget(),
+              ],
+            ),
           ),
         ),
       ),
@@ -202,7 +227,7 @@ class _LoginWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const AuthPage()),
+        MaterialPageRoute(builder: (context) => const AuthPageWrapper()),
       ),
       child: const Text(
         'Got an account? Sign in!',
@@ -218,9 +243,10 @@ class _LoginWidget extends StatelessWidget {
 
 // Виджет с кнопкой
 class _ButtonWidget extends StatelessWidget {
-  final VoidCallback register;
+  final VoidCallback? register;
+  final bool isLoading;
 
-  _ButtonWidget({required this.register});
+  _ButtonWidget({required this.register, this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -231,25 +257,28 @@ class _ButtonWidget extends StatelessWidget {
         child: Container(
           height: 50,
           decoration: BoxDecoration(
-            color: Colors.black,
+            color: isLoading ? Colors.grey : Colors.black,
             borderRadius: BorderRadius.circular(12.0),
           ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 5),
-                child: Text(
-                  'Create an account',
-                  style: TextStyle(
-                    fontFamily: 'SFPro',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    color: Colors.grey,
+          child: Center(
+            child: isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Text(
+                    'Create an account',
+                    style: TextStyle(
+                      fontFamily: 'SFPro',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
                   ),
-                ),
-              ),
-            ],
           ),
         ),
       ),

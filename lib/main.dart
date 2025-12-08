@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:code_sync/app.dart';
 

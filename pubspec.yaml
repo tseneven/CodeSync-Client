@@ -20,6 +20,8 @@ dependencies:
   shared_preferences: ^2.5.3
   build_runner: ^2.6.1
   intl: ^0.20.2
+  bloc: ^9.1.0
+  flutter_bloc: ^9.1.1
   
 
 dev_dependencies:

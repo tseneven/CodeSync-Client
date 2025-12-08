@@ -1,4 +1,4 @@
-import 'package:code_sync/fearures/auth/data/board.dart';
+import 'package:code_sync/data/datasourse/board.dart';
 import 'package:code_sync/utils/hex_to_color.dart';
 import 'package:flutter/material.dart';
 

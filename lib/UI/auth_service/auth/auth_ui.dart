@@ -1,9 +1,23 @@
-import 'package:code_sync/fearures/auth/data/registration_data.dart';
-import 'package:code_sync/fearures/auth/presentation/register/register_ui.dart';
-import 'package:code_sync/fearures/main_screen/main_screen_ui.dart';
+import 'package:code_sync/UI/auth_service/auth/bloc/auth_bloc.dart';
+import 'package:code_sync/UI/auth_service/register/register_ui.dart';
+import 'package:code_sync/UI/main_service/main_screen_ui.dart';
+import 'package:code_sync/data/dto/user.dto.dart';
 import 'package:code_sync/utils/hex_to_Color.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:logger/logger.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class AuthPageWrapper extends StatelessWidget {
+  const AuthPageWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => AuthBloc(),
+      child: const AuthPage(),
+    );
+  }
+}
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -17,8 +31,6 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
   bool _showWidget = false;
 
   final Logger logger = Logger();
-
-  final RegistrationData login = RegistrationData();
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -41,31 +53,6 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void logined() async {
-    String result = await login.login(_usernameController.text,
-        _emailController.text, _passwordController.text);
-
-    if (result != "Ок") {
-      logger.e(result);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result)));
-    } else {
-      logger.e(result);
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              const MainPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            var opacityAnimation =
-                Tween(begin: 0.0, end: 1.0).animate(animation);
-            return FadeTransition(opacity: opacityAnimation, child: child);
-          },
-        ),
-      );
-    }
-  }
-
   // Основной виджет
   @override
   Widget build(BuildContext context) {
@@ -80,26 +67,66 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: Column(
-            children: [
-              const ImageWidget(),
-              _SwitchUpWidget(showWidget: _showWidget),
-              const SizedBox(height: 30),
-              _TextfildWidget(
-                controller: _emailController,
-                hintText: 'email',
-                icon: Icons.email,
-                isPassword: false,
-              ),
-              _TextfildWidget(
-                controller: _passwordController,
-                hintText: 'password',
-                icon: Icons.lock,
-                isPassword: true,
-              ),
-              _ButtonWidget(login: logined),
-              _RegisterWidget(),
-            ],
+          child: BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state is AuthError) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text(state.exception)));
+              } else if (state is AuthSuccess) {
+                Navigator.pushReplacement(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        const MainPage(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      var opacityAnimation =
+                          Tween(begin: 0.0, end: 1.0).animate(animation);
+                      return FadeTransition(
+                          opacity: opacityAnimation, child: child);
+                    },
+                  ),
+                );
+              }
+            },
+            child: Column(
+              children: [
+                const ImageWidget(),
+                _SwitchUpWidget(showWidget: _showWidget),
+                const SizedBox(height: 30),
+                _TextfildWidget(
+                  controller: _emailController,
+                  hintText: 'email',
+                  icon: Icons.email,
+                  isPassword: false,
+                ),
+                _TextfildWidget(
+                  controller: _passwordController,
+                  hintText: 'password',
+                  icon: Icons.lock,
+                  isPassword: true,
+                ),
+                BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    return _ButtonWidget(
+                      isLoading: state is AuthLoading,
+                      login: state is AuthLoading
+                          ? null
+                          : () {
+                              final bloc = context.read<AuthBloc>();
+                              User user = User(
+                                _usernameController.text,
+                                _emailController.text,
+                                _passwordController.text,
+                              );
+                              bloc.add(EmitAuth(user));
+                            },
+                    );
+                  },
+                ),
+                _RegisterWidget(),
+              ],
+            ),
           ),
         ),
       ),
@@ -187,7 +214,7 @@ class _RegisterWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const RegisterPage()),
+        MaterialPageRoute(builder: (context) => const RegisterPageWraper()),
       ),
       child: const Text(
         'Dont have an account? Register!',
@@ -203,10 +230,10 @@ class _RegisterWidget extends StatelessWidget {
 
 // Виджет с кнопкой
 class _ButtonWidget extends StatelessWidget {
+  final VoidCallback? login;
+  final bool isLoading;
 
-  final VoidCallback login;
-
-  _ButtonWidget ({required this.login});
+  _ButtonWidget({required this.login, this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -217,25 +244,28 @@ class _ButtonWidget extends StatelessWidget {
         child: Container(
           height: 50,
           decoration: BoxDecoration(
-            color: Colors.black,
+            color: isLoading ? Colors.grey : Colors.black,
             borderRadius: BorderRadius.circular(12.0),
           ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 5),
-                child: Text(
-                  'Login',
-                  style: TextStyle(
-                    fontFamily: 'SFPro',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    color: Colors.grey,
+          child: Center(
+            child: isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Text(
+                    'Create an account',
+                    style: TextStyle(
+                      fontFamily: 'SFPro',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
                   ),
-                ),
-              ),
-            ],
           ),
         ),
       ),

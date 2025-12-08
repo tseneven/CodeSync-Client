@@ -1,6 +1,6 @@
-import 'package:code_sync/fearures/main_screen/enums/states_eum.dart';
-import 'package:code_sync/fearures/main_screen/news_screen_ui.dart';
-import 'package:code_sync/fearures/main_screen/overlay_add_board.dart';
+import 'package:code_sync/UI/main_service/enums/states_eum.dart';
+import 'package:code_sync/UI/news_service/news_screen_ui.dart';
+import 'package:code_sync/UI/news_service/overlay_add_board.dart';
 import 'package:code_sync/utils/hex_to_Color.dart';
 import 'package:flutter/material.dart';
 
